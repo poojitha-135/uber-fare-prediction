@@ -11,19 +11,86 @@ st.set_page_config(
     layout="wide"
 )
 st.title("🚕 Uber Fare Prediction System")
-
-st.markdown("""
-### Project Description
-This project predicts the **estimated Uber fare** based on trip distance, pickup and drop-off locations, and passenger count using a **Machine Learning Random Forest Regression model**.  
-The system calculates distance using the **Haversine formula** and provides fare estimation through an interactive Streamlit web application.
-""")
-
+st.write("**Student Details**")
 st.write("**Name:** D Poojitha")
 st.write("**Registration Number:** 2023BCSE07AED296")
 st.write("**Class:** CSE-AIML-C")
 st.image("poojitha.jpg", width=200)
 st.write("**Google Colab Project:**")
 st.markdown("https://colab.research.google.com/drive/1XXA4uWd-xyUBUXdkLIg3SdltrkY9UmmP?usp=sharing")
+st.divider()
+
+st.header("Project Overview")
+
+st.markdown("""
+This project develops a **Machine Learning based system to predict Uber ride fares** using trip-related information such as pickup and drop-off locations, passenger count, and travel distance.  
+The system estimates the fare amount by learning patterns from historical Uber trip data and provides predictions through an interactive **Streamlit web application**.
+""")
+
+st.header("Problem Statement")
+
+st.markdown("""
+Ride-hailing platforms such as Uber calculate fares based on multiple factors including **distance, passenger count, and trip location**.  
+The objective of this project is to build a **regression-based machine learning model** that can accurately predict the expected fare amount for a trip using historical ride data.
+""")
+
+st.header("Dataset Information")
+
+st.markdown("""
+The dataset used for this project is the **Uber Fares Dataset from Kaggle**.
+
+It contains historical trip records including:
+- Pickup latitude and longitude
+- Drop-off latitude and longitude
+- Passenger count
+- Fare amount
+
+This dataset helps train the model to understand the relationship between trip features and fare prices.
+""")
+
+st.header("Features Used")
+
+st.markdown("""
+The following features are used as input for the machine learning model:
+
+- **Pickup Latitude**
+- **Pickup Longitude**
+- **Drop-off Latitude**
+- **Drop-off Longitude**
+- **Passenger Count**
+- **Trip Distance (calculated using the Haversine Formula)**
+
+Distance between pickup and drop locations is computed to better capture the main factor affecting ride fares.
+""")
+
+st.header("Machine Learning Method")
+
+st.markdown("""
+This project uses the **Random Forest Regression algorithm** for fare prediction.
+
+Random Forest is an ensemble learning technique that:
+- Combines multiple decision trees
+- Improves prediction accuracy
+- Reduces overfitting
+- Handles nonlinear relationships effectively
+
+The model was trained and optimized using **GridSearchCV** for better performance.
+""")
+
+st.header("System Workflow")
+
+st.markdown("""
+The workflow of the system is as follows:
+
+1. **Data Collection** – Load Uber fare dataset.
+2. **Data Cleaning** – Remove missing values and invalid entries.
+3. **Feature Engineering** – Calculate trip distance using the Haversine formula.
+4. **Feature Selection** – Select relevant variables for prediction.
+5. **Model Training** – Train regression models such as Linear Regression and Random Forest.
+6. **Model Optimization** – Tune hyperparameters using GridSearchCV.
+7. **Model Deployment** – Deploy the trained model using Streamlit for interactive predictions.
+""")
+st.divider()
 # Load model
 model = pickle.load(open("uber_fare_model.pkl","rb"))
 
@@ -119,6 +186,7 @@ if st.button("🚕 Predict Fare"):
 st.divider()
 
 st.caption("🚀 Machine Learning Model: Random Forest | Built using Streamlit")
+
 
 
 
