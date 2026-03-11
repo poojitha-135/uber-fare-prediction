@@ -4,21 +4,34 @@ import pickle
 import math
 import pandas as pd
 import plotly.graph_objects as go
+from geopy.geocoders import Nominatim
+
+# Initialize geocoder
+geolocator = Nominatim(user_agent="uber_fare_app")
 
 st.set_page_config(
     page_title="Uber Fare Predictor",
     page_icon="🚕",
     layout="wide"
 )
+
+# ---------------- STUDENT DETAILS ---------------- #
+
 st.title("🚕 Uber Fare Prediction System")
-st.write("**Student Details**")
+
+st.write("### Student Details")
 st.write("**Name:** D Poojitha")
 st.write("**Registration Number:** 2023BCSE07AED296")
 st.write("**Class:** CSE-AIML-C")
+
 st.image("poojitha.jpg", width=200)
+
 st.write("**Google Colab Project:**")
 st.markdown("https://colab.research.google.com/drive/1XXA4uWd-xyUBUXdkLIg3SdltrkY9UmmP?usp=sharing")
+
 st.divider()
+
+# ---------------- PROJECT DESCRIPTION ---------------- #
 
 st.header("Project Overview")
 
@@ -44,150 +57,140 @@ It contains historical trip records including:
 - Drop-off latitude and longitude
 - Passenger count
 - Fare amount
-
-This dataset helps train the model to understand the relationship between trip features and fare prices.
 """)
 
 st.header("Features Used")
 
 st.markdown("""
-The following features are used as input for the machine learning model:
-
-- **Pickup Latitude**
-- **Pickup Longitude**
-- **Drop-off Latitude**
-- **Drop-off Longitude**
-- **Passenger Count**
-- **Trip Distance (calculated using the Haversine Formula)**
-
-Distance between pickup and drop locations is computed to better capture the main factor affecting ride fares.
+- Pickup Latitude  
+- Pickup Longitude  
+- Drop-off Latitude  
+- Drop-off Longitude  
+- Passenger Count  
+- Distance (calculated using the **Haversine Formula**)
 """)
 
 st.header("Machine Learning Method")
 
 st.markdown("""
-This project uses the **Random Forest Regression algorithm** for fare prediction.
+This project uses **Random Forest Regression** for predicting the Uber fare.
 
-Random Forest is an ensemble learning technique that:
+Random Forest:
 - Combines multiple decision trees
 - Improves prediction accuracy
 - Reduces overfitting
 - Handles nonlinear relationships effectively
-
-The model was trained and optimized using **GridSearchCV** for better performance.
 """)
 
 st.header("System Workflow")
 
 st.markdown("""
-The workflow of the system is as follows:
-
-1. **Data Collection** – Load Uber fare dataset.
-2. **Data Cleaning** – Remove missing values and invalid entries.
-3. **Feature Engineering** – Calculate trip distance using the Haversine formula.
-4. **Feature Selection** – Select relevant variables for prediction.
-5. **Model Training** – Train regression models such as Linear Regression and Random Forest.
-6. **Model Optimization** – Tune hyperparameters using GridSearchCV.
-7. **Model Deployment** – Deploy the trained model using Streamlit for interactive predictions.
+1. Data Collection  
+2. Data Cleaning  
+3. Feature Engineering (Haversine Distance)  
+4. Feature Selection  
+5. Model Training (Random Forest)  
+6. Hyperparameter Optimization  
+7. Model Deployment using Streamlit
 """)
+
 st.divider()
-# Load model
-model = pickle.load(open("uber_fare_model.pkl","rb"))
 
-st.title("🚕 Uber Fare Prediction System")
+# ---------------- LOAD MODEL ---------------- #
 
-st.markdown(
-"""
-Estimate Uber ride fare using **Machine Learning**.  
-Select pickup and drop locations on the map.
-"""
+model = pickle.load(open("uber_fare_model.pkl", "rb"))
+
+# ---------------- USER INPUT ---------------- #
+
+st.header("🚕 Fare Prediction")
+
+pickup_address = st.text_input(
+    "Enter Pickup Location",
+    "Alliance University Anekal Road Bangalore"
 )
 
-st.divider()
+drop_address = st.text_input(
+    "Enter Drop Location",
+    "Electronic City Bangalore"
+)
 
-# Default NYC coordinates
-pickup_lat = 40.761432
-pickup_lon = -73.979815
+passengers = st.slider("Passenger Count", 1, 6, 1)
 
-drop_lat = 40.651311
-drop_lon = -73.880333
+# ---------------- GEOCODING FUNCTION ---------------- #
 
+def get_coordinates(address):
+    location = geolocator.geocode(address)
 
-# Map data
-map_data = pd.DataFrame({
-    'lat':[pickup_lat, drop_lat],
-    'lon':[pickup_lon, drop_lon]
-})
-
-st.subheader("📍 Trip Location")
-
-st.map(map_data)
-
-st.divider()
-
-col1,col2,col3 = st.columns(3)
-
-with col1:
-    pickup_lat = st.number_input("Pickup Latitude", value=pickup_lat)
-
-with col2:
-    pickup_lon = st.number_input("Pickup Longitude", value=pickup_lon)
-
-with col3:
-    passengers = st.slider("Passengers",1,6,1)
-
-col4,col5 = st.columns(2)
-
-with col4:
-    drop_lat = st.number_input("Dropoff Latitude", value=drop_lat)
-
-with col5:
-    drop_lon = st.number_input("Dropoff Longitude", value=drop_lon)
+    if location:
+        return location.latitude, location.longitude
+    else:
+        return None, None
 
 
-# Distance calculation
+# ---------------- DISTANCE FUNCTION ---------------- #
+
 def haversine(lat1, lon1, lat2, lon2):
+
     R = 6371
-    lat1,lon1,lat2,lon2 = map(math.radians,[lat1,lon1,lat2,lon2])
-    dlat = lat2-lat1
-    dlon = lon2-lon1
+
+    lat1, lon1, lat2, lon2 = map(math.radians,[lat1, lon1, lat2, lon2])
+
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
     a = math.sin(dlat/2)**2 + math.cos(lat1)*math.cos(lat2)*math.sin(dlon/2)**2
-    c = 2*math.asin(math.sqrt(a))
-    return R*c
+    c = 2 * math.asin(math.sqrt(a))
+
+    return R * c
 
 
 st.divider()
+
+# ---------------- PREDICTION ---------------- #
 
 if st.button("🚕 Predict Fare"):
 
-    distance = haversine(pickup_lat,pickup_lon,drop_lat,drop_lon)
+    pickup_lat, pickup_lon = get_coordinates(pickup_address)
+    drop_lat, drop_lon = get_coordinates(drop_address)
 
-    features = np.array([[pickup_lat,pickup_lon,drop_lat,drop_lon,passengers,distance]])
+    if pickup_lat is None or drop_lat is None:
+        st.error("Invalid address. Please enter a valid location.")
+    else:
 
-    prediction = model.predict(features)[0]
+        distance = haversine(pickup_lat, pickup_lon, drop_lat, drop_lon)
 
-    st.success(f"Estimated Fare: ${prediction:.2f}")
+        features = np.array([[pickup_lat, pickup_lon,
+                              drop_lat, drop_lon,
+                              passengers,
+                              distance]])
 
-    st.info(f"Trip Distance: {distance:.2f} km")
+        prediction = model.predict(features)[0]
 
-    # Gauge chart
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=prediction,
-        title={'text':"Estimated Fare ($)"},
-        gauge={
-            'axis':{'range':[0,100]},
-            'bar':{'color':"green"}
-        }
-    ))
+        st.success(f"Estimated Fare: ${prediction:.2f}")
+        st.info(f"Trip Distance: {distance:.2f} km")
 
-    st.plotly_chart(fig)
+        # Map display
+        map_data = pd.DataFrame({
+            'lat':[pickup_lat, drop_lat],
+            'lon':[pickup_lon, drop_lon]
+        })
+
+        st.subheader("Trip Route Map")
+        st.map(map_data)
+
+        # Gauge chart
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=prediction,
+            title={'text':"Estimated Fare ($)"},
+            gauge={
+                'axis':{'range':[0,100]},
+                'bar':{'color':"green"}
+            }
+        ))
+
+        st.plotly_chart(fig)
 
 st.divider()
 
-st.caption("🚀 Machine Learning Model: Random Forest | Built using Streamlit")
-
-
-
-
-
+st.caption("🚀 Machine Learning Model: Random Forest | Built with Streamlit")
