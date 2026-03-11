@@ -10,7 +10,19 @@ st.set_page_config(
     page_icon="🚕",
     layout="wide"
 )
+st.title("🚕 Uber Fare Prediction System")
 
+st.markdown("""
+### Project Description
+This project predicts the **estimated Uber fare** based on trip distance, pickup and drop-off locations, and passenger count using a **Machine Learning Random Forest Regression model**.  
+The system calculates distance using the **Haversine formula** and provides fare estimation through an interactive Streamlit web application.
+""")
+
+st.write("**Name:** D Poojitha")
+st.write("**Registration Number:** 2023BCSE07AED296")
+
+st.write("**Google Colab Project:**")
+st.markdown("[Open Project Notebook](PASTE_YOUR_COLAB_LINK_HERE)")
 # Load model
 model = pickle.load(open("uber_fare_model.pkl","rb"))
 
@@ -106,3 +118,4 @@ if st.button("🚕 Predict Fare"):
 st.divider()
 
 st.caption("🚀 Machine Learning Model: Random Forest | Built using Streamlit")
+
