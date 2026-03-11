@@ -20,7 +20,7 @@ The system calculates distance using the **Haversine formula** and provides fare
 
 st.write("**Name:** D Poojitha")
 st.write("**Registration Number:** 2023BCSE07AED296")
-
+st.image("poojitha.jpg", width=200)
 st.write("**Google Colab Project:**")
 st.markdown("https://colab.research.google.com/drive/1XXA4uWd-xyUBUXdkLIg3SdltrkY9UmmP?usp=sharing")
 # Load model
@@ -118,5 +118,6 @@ if st.button("🚕 Predict Fare"):
 st.divider()
 
 st.caption("🚀 Machine Learning Model: Random Forest | Built using Streamlit")
+
 
 
